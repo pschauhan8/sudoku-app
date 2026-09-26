@@ -3,7 +3,7 @@ import { generateLocalPuzzle } from '../utils/sudokuEngine';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const API_STORAGE_KEY = '@sudoku_api_base_url';
-export const DEFAULT_API_URL = 'http://10.0.2.2:3000'; // Standard Android emulator localhost alias or AWS endpoint
+export const DEFAULT_API_URL = 'https://fiytup8bil.execute-api.us-east-1.amazonaws.com';
 
 export async function getApiBaseUrl(): Promise<string> {
   try {
