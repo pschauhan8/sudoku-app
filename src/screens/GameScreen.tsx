@@ -40,6 +40,8 @@ import {
   submitScoreToLeaderboard,
   syncCloudProfile,
 } from '../services/api';
+import { AdBanner } from '../components/AdBanner';
+import { initializeAds, showRewardedAd, showInterstitialAd } from '../services/adService';
 
 export const GameScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -74,6 +76,7 @@ export const GameScreen: React.FC = () => {
   // Initialize: load settings, stats, and saved game or generate fresh
   useEffect(() => {
     async function init() {
+      initializeAds().catch(() => {});
       const storedSettings = await loadSettings();
       setSettings(storedSettings);
       const storedStats = await loadStats();
@@ -252,8 +255,16 @@ export const GameScreen: React.FC = () => {
         if (maxMistakes > 0 && newMistakes >= maxMistakes) {
           Alert.alert(
             'Game Over',
-            `You made ${maxMistakes} mistakes! Would you like to restart this puzzle?`,
+            `You made ${maxMistakes} mistakes! Watch a sponsor video to erase a mistake and continue, or restart.`,
             [
+              {
+                text: 'Watch Video to Revive',
+                onPress: () => {
+                  showRewardedAd(() => {
+                    setMistakes(maxMistakes - 1);
+                  });
+                },
+              },
               { text: 'Restart Board', onPress: restartCurrentGame },
               { text: 'New Game', onPress: () => setShowDifficultyModal(true) },
             ],
@@ -314,6 +325,7 @@ export const GameScreen: React.FC = () => {
   const handleWin = async () => {
     setShowVictoryModal(true);
     await clearActiveGame();
+    showInterstitialAd();
 
     // Update stats
     const currentBest = stats.bestTimeByDifficulty[difficulty] || 0;
@@ -411,30 +423,8 @@ export const GameScreen: React.FC = () => {
     setGrid(newGrid);
   };
 
-  // Hint logic
-  const handleHint = () => {
-    if (isPaused || isComplete) return;
-
-    // If a cell is currently selected and empty, reveal it!
-    let targetRow = -1;
-    let targetCol = -1;
-
-    if (selectedCell && grid[selectedCell[0]][selectedCell[1]].value === 0) {
-      targetRow = selectedCell[0];
-      targetCol = selectedCell[1];
-    } else {
-      const hint = getSmartHint(grid, solution);
-      if (hint) {
-        targetRow = hint.row;
-        targetCol = hint.col;
-      }
-    }
-
-    if (targetRow === -1 || targetCol === -1) {
-      Alert.alert('No empty cell', 'The board is already filled or no hint needed.');
-      return;
-    }
-
+  // Hint application helper
+  const applySmartHint = (targetRow: number, targetCol: number) => {
     const correctVal = solution[targetRow][targetCol];
     const newGrid = grid.map((row, r) =>
       row.map((cell, c) => {
@@ -458,6 +448,53 @@ export const GameScreen: React.FC = () => {
       setIsComplete(true);
       handleWin();
     }
+  };
+
+  // Hint logic with Rewarded Ads after 3 free hints
+  const handleHint = () => {
+    if (isPaused || isComplete) return;
+
+    // If a cell is currently selected and empty, reveal it!
+    let targetRow = -1;
+    let targetCol = -1;
+
+    if (selectedCell && grid[selectedCell[0]][selectedCell[1]].value === 0) {
+      targetRow = selectedCell[0];
+      targetCol = selectedCell[1];
+    } else {
+      const hint = getSmartHint(grid, solution);
+      if (hint) {
+        targetRow = hint.row;
+        targetCol = hint.col;
+      }
+    }
+
+    if (targetRow === -1 || targetCol === -1) {
+      Alert.alert('No empty cell', 'The board is already filled or no hint needed.');
+      return;
+    }
+
+    // First 3 hints per puzzle are free. Further hints unlock via rewarded ad.
+    if (hintsUsed >= 3) {
+      Alert.alert(
+        'Out of Free Hints',
+        'You have used all 3 free hints! Watch a short sponsor video to unlock an extra hint?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Watch Video (+1 Hint)',
+            onPress: () => {
+              showRewardedAd(() => {
+                applySmartHint(targetRow, targetCol);
+              });
+            },
+          },
+        ],
+      );
+      return;
+    }
+
+    applySmartHint(targetRow, targetCol);
   };
 
   // Count placed instances of each digit (1-9)
@@ -534,6 +571,9 @@ export const GameScreen: React.FC = () => {
         onToggleNotes={() => setIsNotesMode((prev) => !prev)}
         onHint={handleHint}
       />
+
+      {/* Google AdMob Banner Ad */}
+      <AdBanner colors={colors} />
 
       {/* Modals */}
       <LeaderboardModal
