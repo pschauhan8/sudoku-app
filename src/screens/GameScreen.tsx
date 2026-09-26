@@ -14,6 +14,7 @@ import { Keypad } from '../components/Keypad';
 import { DifficultyModal } from '../components/DifficultyModal';
 import { VictoryModal } from '../components/VictoryModal';
 import { SettingsModal } from '../components/SettingsModal';
+import { LeaderboardModal } from '../components/LeaderboardModal';
 import { Difficulty, GridData, MoveRecord, GameState, GameStatistics } from '../types/sudoku';
 import { themes } from '../theme/colors';
 import {
@@ -33,7 +34,12 @@ import {
   checkBoardCompletion,
   getSmartHint,
 } from '../utils/sudokuEngine';
-import { fetchPuzzle, fetchDailyPuzzle } from '../services/api';
+import {
+  fetchPuzzle,
+  fetchDailyPuzzle,
+  submitScoreToLeaderboard,
+  syncCloudProfile,
+} from '../services/api';
 
 export const GameScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -60,6 +66,7 @@ export const GameScreen: React.FC = () => {
   const [showDifficultyModal, setShowDifficultyModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showVictoryModal, setShowVictoryModal] = useState(false);
+  const [showLeaderboardModal, setShowLeaderboardModal] = useState(false);
 
   const colors = settings.isDarkMode ? themes.dark : themes.light;
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -325,6 +332,16 @@ export const GameScreen: React.FC = () => {
     };
     setStats(newStats);
     await saveStats(newStats);
+
+    // Sync stats and submit completion score to live DynamoDB
+    submitScoreToLeaderboard({
+      difficulty,
+      timeSeconds: timerSeconds,
+      mistakes,
+      hintsUsed,
+    }).catch(() => {});
+
+    syncCloudProfile({ stats: newStats }).catch(() => {});
   };
 
   // Undo last action
@@ -489,6 +506,10 @@ export const GameScreen: React.FC = () => {
           setIsPaused(true);
           setShowDifficultyModal(true);
         }}
+        onOpenLeaderboard={() => {
+          setIsPaused(true);
+          setShowLeaderboardModal(true);
+        }}
       />
 
       <SudokuBoard
@@ -515,6 +536,15 @@ export const GameScreen: React.FC = () => {
       />
 
       {/* Modals */}
+      <LeaderboardModal
+        visible={showLeaderboardModal}
+        colors={colors}
+        onClose={() => {
+          setShowLeaderboardModal(false);
+          setIsPaused(false);
+        }}
+      />
+
       <DifficultyModal
         visible={showDifficultyModal}
         currentDifficulty={difficulty}

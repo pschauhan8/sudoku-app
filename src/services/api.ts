@@ -111,3 +111,111 @@ export async function fetchRemoteHint(
   }
   return null;
 }
+
+export interface LeaderboardEntry {
+  rank: number;
+  id: string;
+  userId: string;
+  username: string;
+  difficulty: string;
+  timeSeconds: number;
+  mistakes: number;
+  hintsUsed: number;
+  completedAt: string;
+}
+
+const USER_ID_KEY = '@sudoku_user_id';
+const USERNAME_KEY = '@sudoku_username';
+
+export async function getOrCreateUser(): Promise<{ userId: string; username: string }> {
+  try {
+    let userId = await AsyncStorage.getItem(USER_ID_KEY);
+    let username = await AsyncStorage.getItem(USERNAME_KEY);
+
+    if (!userId) {
+      userId = 'u_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
+      await AsyncStorage.setItem(USER_ID_KEY, userId);
+    }
+    if (!username) {
+      username = 'Player #' + Math.floor(1000 + Math.random() * 9000);
+      await AsyncStorage.setItem(USERNAME_KEY, username);
+    }
+    return { userId, username };
+  } catch {
+    return { userId: 'local_user', username: 'Player' };
+  }
+}
+
+export async function setPlayerUsername(name: string): Promise<void> {
+  await AsyncStorage.setItem(USERNAME_KEY, name.trim());
+}
+
+export async function submitScoreToLeaderboard(params: {
+  difficulty: string;
+  timeSeconds: number;
+  mistakes: number;
+  hintsUsed: number;
+}): Promise<boolean> {
+  const baseUrl = await getApiBaseUrl();
+  const user = await getOrCreateUser();
+
+  try {
+    const res = await fetch(`${baseUrl}/api/leaderboard/submit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId: user.userId,
+        username: user.username,
+        difficulty: params.difficulty,
+        timeSeconds: params.timeSeconds,
+        mistakes: params.mistakes,
+        hintsUsed: params.hintsUsed,
+      }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+export async function fetchLeaderboardScores(
+  difficulty: string,
+  limit = 25,
+): Promise<LeaderboardEntry[]> {
+  const baseUrl = await getApiBaseUrl();
+  try {
+    const res = await fetch(
+      `${baseUrl}/api/leaderboard?difficulty=${encodeURIComponent(difficulty)}&limit=${limit}`,
+    );
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch {
+    // Return empty list if offline
+  }
+  return [];
+}
+
+export async function syncCloudProfile(data: {
+  stats?: Record<string, any>;
+  activeGame?: Record<string, any>;
+}): Promise<void> {
+  const baseUrl = await getApiBaseUrl();
+  const user = await getOrCreateUser();
+
+  try {
+    await fetch(`${baseUrl}/api/users/sync`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId: user.userId,
+        username: user.username,
+        stats: data.stats,
+        activeGame: data.activeGame,
+      }),
+    });
+  } catch {
+    // Offline sync will retry next time
+  }
+}
+

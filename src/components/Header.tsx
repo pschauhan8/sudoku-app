@@ -15,6 +15,7 @@ interface HeaderProps {
   onTogglePause: () => void;
   onOpenSettings: () => void;
   onOpenDifficultySelect: () => void;
+  onOpenLeaderboard: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -28,6 +29,7 @@ export const Header: React.FC<HeaderProps> = ({
   onTogglePause,
   onOpenSettings,
   onOpenDifficultySelect,
+  onOpenLeaderboard,
 }) => {
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
@@ -67,6 +69,14 @@ export const Header: React.FC<HeaderProps> = ({
         <View style={styles.rightIcons}>
           <TouchableOpacity
             style={[styles.iconButton, { backgroundColor: colors.surface }]}
+            onPress={onOpenLeaderboard}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="trophy-outline" size={18} color="#F59E0B" />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.iconButton, { backgroundColor: colors.surface, marginLeft: 8 }]}
             onPress={onTogglePause}
             activeOpacity={0.7}
           >
@@ -78,7 +88,7 @@ export const Header: React.FC<HeaderProps> = ({
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.iconButton, { backgroundColor: colors.surface, marginLeft: 10 }]}
+            style={[styles.iconButton, { backgroundColor: colors.surface, marginLeft: 8 }]}
             onPress={onOpenSettings}
             activeOpacity={0.7}
           >
