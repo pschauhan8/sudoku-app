@@ -31,6 +31,7 @@
       [
         "react-native-google-mobile-ads",
         {
+          "androidSdk": "classic",
           "androidAppId": "ca-app-pub-8647742552399514~6816143560",
           "iosAppId": "ca-app-pub-3940256099942544~1458002511"
         }
@@ -41,5 +42,10 @@
         "projectId": "97434fb0-bef7-4321-b390-5dad766f0ff7"
       }
     }
+  },
+  "react-native-google-mobile-ads": {
+    "android_app_id": "ca-app-pub-8647742552399514~6816143560",
+    "ios_app_id": "ca-app-pub-3940256099942544~1458002511",
+    "android_sdk": "classic"
   }
 }
