@@ -13,8 +13,8 @@ import { Platform } from 'react-native';
  */
 
 export const AD_CONFIG = {
-  // Toggle this to false when publishing to Google Play Store with real AdMob account
-  IS_TEST_MODE: true,
+  // Set to false for live Google Play Store monetization
+  IS_TEST_MODE: false,
 
   // Test Ad Unit IDs provided by Google (Safe for testing on emulators and physical devices)
   TEST_IDS: {
@@ -26,14 +26,14 @@ export const AD_CONFIG = {
     INTERSTITIAL_IOS: 'ca-app-pub-3940256099942544/4411468910',
   },
 
-  // Production Ad Unit IDs (Replace with your actual AdMob Ad Unit IDs from AdMob dashboard)
+  // Production Ad Unit IDs (From your Google AdMob Dashboard)
   PRODUCTION_IDS: {
-    BANNER_ANDROID: 'ca-app-pub-XXXXXXXXXXXXXXXX/YYYYYYYYYY',
-    BANNER_IOS: 'ca-app-pub-XXXXXXXXXXXXXXXX/YYYYYYYYYY',
-    REWARDED_ANDROID: 'ca-app-pub-XXXXXXXXXXXXXXXX/YYYYYYYYYY',
-    REWARDED_IOS: 'ca-app-pub-XXXXXXXXXXXXXXXX/YYYYYYYYYY',
-    INTERSTITIAL_ANDROID: 'ca-app-pub-XXXXXXXXXXXXXXXX/YYYYYYYYYY',
-    INTERSTITIAL_IOS: 'ca-app-pub-XXXXXXXXXXXXXXXX/YYYYYYYYYY',
+    BANNER_ANDROID: 'ca-app-pub-8647742552399514/2347018159',
+    BANNER_IOS: 'ca-app-pub-8647742552399514/2347018159',
+    REWARDED_ANDROID: 'ca-app-pub-3940256099942544/5224354917', // Test ID until rewarded unit created
+    REWARDED_IOS: 'ca-app-pub-3940256099942544/1712485313',
+    INTERSTITIAL_ANDROID: 'ca-app-pub-3940256099942544/1033173712', // Test ID until interstitial unit created
+    INTERSTITIAL_IOS: 'ca-app-pub-3940256099942544/4411468910',
   },
 };
 
