@@ -35,10 +35,11 @@
           "iosAppId": "ca-app-pub-3940256099942544~1458002511"
         }
       ]
-    ]
-  },
-  "react-native-google-mobile-ads": {
-    "android_app_id": "ca-app-pub-3940256099942544~3347511713",
-    "ios_app_id": "ca-app-pub-3940256099942544~1458002511"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "97434fb0-bef7-4321-b390-5dad766f0ff7"
+      }
+    }
   }
 }
