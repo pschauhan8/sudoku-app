@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { GameState, GameStatistics } from '../types/sudoku';
+import { Difficulty, GameState, GameStatistics } from '../types/sudoku';
 
 const ACTIVE_GAME_KEY = '@sudoku_active_game';
 const STATS_KEY = '@sudoku_player_stats';
@@ -94,5 +94,27 @@ export async function loadSettings(): Promise<UserSettings> {
     return data ? { ...defaultSettings, ...JSON.parse(data) } : defaultSettings;
   } catch {
     return defaultSettings;
+  }
+}
+
+const LAST_DIFFICULTY_KEY = '@sudoku_last_difficulty';
+
+export async function saveLastDifficulty(diff: Difficulty): Promise<void> {
+  try {
+    await AsyncStorage.setItem(LAST_DIFFICULTY_KEY, diff);
+  } catch (err) {
+    console.error('Failed to save last difficulty', err);
+  }
+}
+
+export async function loadLastDifficulty(): Promise<Difficulty> {
+  try {
+    const data = await AsyncStorage.getItem(LAST_DIFFICULTY_KEY);
+    if (data === 'easy' || data === 'medium' || data === 'hard' || data === 'expert') {
+      return data as Difficulty;
+    }
+    return 'easy';
+  } catch {
+    return 'easy';
   }
 }

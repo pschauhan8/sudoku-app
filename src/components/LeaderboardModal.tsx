@@ -24,7 +24,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
   colors,
   onClose,
 }) => {
-  const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>('medium');
+  const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>('easy');
   const [scores, setScores] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(false);
 

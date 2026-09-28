@@ -28,6 +28,8 @@ import {
   UserSettings,
   defaultSettings,
   defaultStats,
+  loadLastDifficulty,
+  saveLastDifficulty,
 } from '../utils/storage';
 import {
   convertMatrixToGridData,
@@ -51,7 +53,7 @@ export const GameScreen: React.FC = () => {
   // Game state
   const [grid, setGrid] = useState<GridData>([]);
   const [solution, setSolution] = useState<number[][]>([]);
-  const [difficulty, setDifficulty] = useState<Difficulty>('medium');
+  const [difficulty, setDifficulty] = useState<Difficulty>('easy');
   const [isDaily, setIsDaily] = useState<boolean>(false);
   const [dailyDate, setDailyDate] = useState<string>('');
   const [selectedCell, setSelectedCell] = useState<[number, number] | null>(null);
@@ -95,7 +97,8 @@ export const GameScreen: React.FC = () => {
         setHintsUsed(savedGame.hintsUsed || 0);
         setLoading(false);
       } else {
-        await startNewGame('medium', false);
+        const initialDiff = await loadLastDifficulty();
+        await startNewGame(initialDiff, false);
       }
     }
     init();
@@ -151,6 +154,10 @@ export const GameScreen: React.FC = () => {
     setHintsUsed(0);
     setDifficulty(diff);
     setIsDaily(daily);
+
+    if (!daily) {
+      saveLastDifficulty(diff).catch(() => {});
+    }
 
     try {
       if (daily) {
