@@ -7,6 +7,7 @@ import {
   Alert,
   ActivityIndicator,
   Text,
+  Platform,
 } from 'react-native';
 import { Header } from '../components/Header';
 import { SudokuBoard } from '../components/SudokuBoard';
@@ -531,6 +532,7 @@ export const GameScreen: React.FC = () => {
       <StatusBar
         barStyle={settings.isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor={colors.background}
+        translucent={true}
       />
 
       <Header
@@ -638,11 +640,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'space-between',
+    paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight ? StatusBar.currentHeight + 8 : 36) : 0,
+    paddingBottom: Platform.OS === 'android' ? 12 : 4,
   },
   loadingContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight ? StatusBar.currentHeight + 8 : 36) : 0,
   },
   loadingText: {
     fontSize: 16,

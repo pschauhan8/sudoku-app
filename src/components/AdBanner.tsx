@@ -51,7 +51,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderTopWidth: StyleSheet.hairlineWidth,
     minHeight: 52,
-    paddingVertical: 4,
+    paddingTop: 4,
+    paddingBottom: Platform.OS === 'android' ? 14 : 6,
   },
   placeholderContainer: {
     flexDirection: 'row',
